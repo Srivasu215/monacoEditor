@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Monaco Studio v9</title>
+
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.js"></script>
+
+    <!-- Babel - JavaScript Parser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+            background: #0f1117;
+            color: #d7dae0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+
+        /* =========================
+           TOP HEADER
+        ========================= */
+
+        .topbar {
+            height: 58px;
+            background: #151821;
+            border-bottom: 1px solid #292e3a;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 18px;
+
+            gap: 20px;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+
+            background: #2563eb;
+
+            border-radius: 8px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+        }
+
+
+        .project-name {
+            color: #ffffff;
+        }
+
+
+        .version {
+            color: #7d8599;
+            font-size: 12px;
+        }
+
+
+        .toolbar {
+            margin-left: auto;
+
+            display: flex;
+            gap: 8px;
+        }
+
+
+        button {
+            border: 1px solid #303746;
+
+            background: #1c212c;
+
+            color: #d7dae0;
+
+            padding: 8px 13px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+        }
+
+
+        button:hover {
+            background: #292f3d;
+        }
+
+
+        .run-button {
+            background: #16803c;
+            border-color: #1b9b4b;
+            color: white;
+        }
+
+
+        .run-button:hover {
+            background: #1ca44e;
+        }
+
+
+        /* =========================
+           MAIN LAYOUT
+        ========================= */
+
+        .main {
+            display: flex;
+
+            height: calc(100vh - 58px - 28px);
+        }
+
+
+        /* =========================
+           FILE EXPLORER
+        ========================= */
+
+        .sidebar {
+            width: 230px;
+
+            background: #13161e;
+
+            border-right: 1px solid #292e3a;
+
+            padding: 15px;
+        }
+
+
+        .sidebar-title {
+            color: #8b93a7;
+
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 15px;
+        }
+
+
+        .file {
+            padding: 9px 10px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            margin-bottom: 4px;
+        }
+
+
+        .file:hover {
+            background: #202532;
+        }
+
+
+        .file.active {
+            background: #263044;
+            color: white;
+        }
+
+
+        /* =========================
+           WORKSPACE
+        ========================= */
+
+        .workspace {
+            flex: 1;
+
+            display: flex;
+
+            flex-direction: column;
+
+            min-width: 0;
+        }
+
+
+        /* =========================
+           TABS
+        ========================= */
+
+        .tabs {
+            height: 40px;
+
+            background: #171a22;
+
+            display: flex;
+
+            border-bottom: 1px solid #292e3a;
+        }
+
+
+        .tab {
+            padding: 11px 18px;
+
+            border-right: 1px solid #292e3a;
+
+            cursor: pointer;
+
+            font-size: 13px;
+        }
+
+
+        .tab.active {
+            background: #1f2430;
+
+            color: white;
+
+            border-top: 2px solid #3b82f6;
+        }
+
+
+        /* =========================
+           EDITOR
+        ========================= */
+
+        #editor {
+            flex: 1;
+
+            min-height: 0;
+        }
+
+
+        /* =========================
+           BOTTOM PANEL
+        ========================= */
+
+        .bottom-panel {
+            height: 230px;
+
+            background: #11141b;
+
+            border-top: 1px solid #292e3a;
+
+            display: flex;
+
+            flex-direction: column;
+        }
+
+
+        .panel-header {
+            height: 38px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 20px;
+
+            padding: 0 15px;
+
+            border-bottom: 1px solid #292e3a;
+
+            font-size: 13px;
+        }
+
+
+        .panel-tab {
+            cursor: pointer;
+
+            color: #8b93a7;
+        }
+
+
+        .panel-tab.active {
+            color: white;
+        }
+
+
+        .panel-content {
+            flex: 1;
+
+            overflow: auto;
+
+            padding: 12px;
+
+            font-family: Consolas, monospace;
+
+            font-size: 13px;
+        }
+
+
+        .success {
+            color: #4ade80;
+        }
+
+
+        .error {
+            color: #f87171;
+        }
+
+
+        .info {
+            color: #60a5fa;
+        }
+
+
+        /* =========================
+           AST DRAWER
+        ========================= */
+
+        .ast-drawer {
+            position: fixed;
+
+            top: 58px;
+
+            right: -420px;
+
+            width: 420px;
+
+            height: calc(100vh - 58px);
+
+            background: #151821;
+
+            border-left: 1px solid #303746;
+
+            transition: right 0.25s ease;
+
+            z-index: 10;
+
+            overflow: auto;
+        }
+
+
+        .ast-drawer.open {
+            right: 0;
+        }
+
+
+        .ast-header {
+            padding: 15px;
+
+            border-bottom: 1px solid #303746;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            font-weight: bold;
+        }
+
+
+        .ast-content {
+            padding: 15px;
+
+            white-space: pre-wrap;
+
+            font-family: Consolas, monospace;
+
+            font-size: 12px;
+
+            color: #9cdcfe;
+        }
+
+
+        /* =========================
+           STATUS BAR
+        ========================= */
+
+        .statusbar {
+            height: 28px;
+
+            background: #2563eb;
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 0 15px;
+
+            font-size: 12px;
+
+            gap: 20px;
+        }
+
+
+        .status-right {
+            margin-left: auto;
+        }
+
+
+        /* =========================
+           FILE INPUT
+        ========================= */
+
+        #fileInput {
+            display: none;
+        }
+
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ======================================
+         TOP BAR
+    ======================================= -->
+
+    <header class="topbar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                JS
+            </div>
+
+            <div>
+
+                <div class="project-name">
+                    Monaco Studio
+                </div>
+
+                <div class="version">
+                    Professional Web Code Editor
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="toolbar">
+
+            <button onclick="document.getElementById('fileInput').click()">
+                ⬆ Upload
+            </button>
+
+            <button onclick="downloadFile()">
+                ↓ Download
+            </button>
+
+            <button onclick="clearEditor()">
+                Clear
+            </button>
+
+            <button onclick="showAST()">
+                🌳 AST
+            </button>
+
+            <button class="run-button" onclick="runCode()">
+                ▶ Run
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- Hidden file input -->
+
+    <input
+        type="file"
+        id="fileInput"
+        accept=".js,.html,.css"
+    >
+
+
+    <!-- ======================================
+         MAIN
+    ======================================= -->
+
+    <div class="main">
+
+
+        <!-- ==================================
+             FILE EXPLORER
+        =================================== -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                Explorer
+            </div>
+
+
+            <div
+                class="file active"
+                id="file-app"
+            >
+                📄 app.js
+            </div>
+
+
+            <div
+                class="file"
+                id="file-demo"
+            >
+                📄 demo.js
+            </div>
+
+
+            <div
+                class="file"
+                id="file-index"
+            >
+                🌐 index.html
+            </div>
+
+        </aside>
+
+
+
+        <!-- ==================================
+             WORKSPACE
+        =================================== -->
+
+        <section class="workspace">
+
+
+            <!-- Tabs -->
+
+            <div class="tabs">
+
+                <div class="tab active">
+                    app.js
+                </div>
+
+                <div class="tab">
+                    demo.js
+                </div>
+
+                <div class="tab">
+                    index.html
+                </div>
+
+            </div>
+
+
+            <!-- Monaco -->
+
+            <div id="editor"></div>
+
+
+
+            <!-- ==================================
+                 BOTTOM PANEL
+            =================================== -->
+
+            <div class="bottom-panel">
+
+
+                <div class="panel-header">
+
+                    <span
+                        class="panel-tab active"
+                        onclick="showConsole()"
+                    >
+                        TERMINAL
+                    </span>
+
+
+                    <span
+                        class="panel-tab"
+                        onclick="showOutput()"
+                    >
+                        OUTPUT
+                    </span>
+
+
+                    <span
+                        class="panel-tab"
+                        onclick="showProblems()"
+                    >
+                        PROBLEMS
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="panelContent"
+                    class="panel-content"
+                >
+
+                    <div class="info">
+                        Ready. Click Run to execute JavaScript.
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </div>
+
+
+
+    <!-- ======================================
+         AST DRAWER
+    ======================================= -->
+
+    <div
+        id="astDrawer"
+        class="ast-drawer"
+    >
+
+        <div class="ast-header">
+
+            <span>
+                🌳 AST Inspector
+            </span>
+
+            <button onclick="closeAST()">
+                ✕
+            </button>
+
+        </div>
+
+
+        <div
+            id="astContent"
+            class="ast-content"
+        >
+        </div>
+
+    </div>
+
+
+
+    <!-- ======================================
+         STATUS BAR
+    ======================================= -->
+
+    <footer class="statusbar">
+
+        <span id="lineCount">
+            Lines: 1
+        </span>
+
+        <span id="errorCount">
+            Errors: 0
+        </span>
+
+        <span>
+            JavaScript
+        </span>
+
+        <span>
+            UTF-8
+        </span>
+
+        <span class="status-right">
+            Monaco Studio v9
+        </span>
+
+    </footer>
+
+
+
+    <!-- ======================================
+         JAVASCRIPT
+    ======================================= -->
+
+    <script>
+
+
+        /* ======================================
+           MONACO CONFIGURATION
+        ======================================= */
+
+        require.config({
+
+            paths: {
+
+                vs:
+                "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs"
+
+            }
+
+        });
+
+
+
+        let editor;
+
+
+
+        /* ======================================
+           START MONACO
+        ======================================= */
+
+        require(
+            ["vs/editor/editor.main"],
+            function () {
+
+
+                editor = monaco.editor.create(
+
+                    document.getElementById("editor"),
+
+                    {
+
+                        value:
+`// Monaco Studio v9
+
+function greet(name) {
+
+    console.log("Hello " + name);
+
+}
+
+greet("Srinivas");
+`,
+
+                        language: "javascript",
+
+                        theme: "vs-dark",
+
+                        automaticLayout: true,
+
+                        fontSize: 14,
+
+                        minimap: {
+                            enabled: true
+                        },
+
+                        wordWrap: "on",
+
+                        lineNumbers: "on",
+
+                        roundedSelection: false,
+
+                        scrollBeyondLastLine: false
+
+                    }
+
+                );
+
+
+                /* ==========================
+                   Detect code changes
+                ========================== */
+
+                editor.onDidChangeModelContent(
+                    function () {
+
+                        updateStatistics();
+
+                        validateCode();
+
+                    }
+                );
+
+
+                updateStatistics();
+
+                validateCode();
+
+            }
+
+        );
+
+
+
+        /* ======================================
+           UPLOAD FILE
+        ======================================= */
+
+        document
+            .getElementById("fileInput")
+            .addEventListener(
+                "change",
+                function (event) {
+
+
+                    const file =
+                        event.target.files[0];
+
+
+                    if (!file) {
+                        return;
+                    }
+
+
+                    const reader =
+                        new FileReader();
+
+
+                    reader.onload =
+                        function (event) {
+
+
+                            const content =
+                                event.target.result;
+
+
+                            editor.setValue(content);
+
+
+                            /*
+
+                            Detect language
+                            from file extension
+
+                            */
+
+                            if (
+                                file.name.endsWith(".html")
+                            ) {
+
+                                monaco.editor.setModelLanguage(
+                                    editor.getModel(),
+                                    "html"
+                                );
+
+                            }
+
+                            else if (
+                                file.name.endsWith(".css")
+                            ) {
+
+                                monaco.editor.setModelLanguage(
+                                    editor.getModel(),
+                                    "css"
+                                );
+
+                            }
+
+                            else {
+
+                                monaco.editor.setModelLanguage(
+                                    editor.getModel(),
+                                    "javascript"
+                                );
+
+                            }
+
+
+                            document.querySelector(
+                                ".tab.active"
+                            ).textContent =
+                                file.name;
+
+
+                            runCode();
+
+                        };
+
+
+                    reader.readAsText(file);
+
+                }
+            );
+
+
+
+        /* ======================================
+           VALIDATE JAVASCRIPT
+        ======================================= */
+
+        function validateCode() {
+
+
+            if (!editor) {
+                return;
+            }
+
+
+            const code =
+                editor.getValue();
+
+
+            const model =
+                editor.getModel();
+
+
+            const markers = [];
+
+
+            try {
+
+
+                const result =
+                    Babel.transform(
+                        code,
+                        {
+
+                            ast: true,
+
+                            code: false,
+
+                            sourceType: "module"
+
+                        }
+                    );
+
+
+                /*
+                    Code is valid
+                */
+
+                document.getElementById(
+                    "errorCount"
+                ).textContent =
+                    "Errors: 0";
+
+
+                document.getElementById(
+                    "panelContent"
+                ).innerHTML =
+                    "<div class='success'>✔ No syntax errors</div>";
+
+
+                /*
+                    Save AST
+                */
+
+                window.currentAST =
+                    result.ast;
+
+
+            }
+
+
+            catch (error) {
+
+
+                let line = 1;
+
+                let column = 1;
+
+
+                if (error.loc) {
+
+                    line =
+                        error.loc.line;
+
+                    column =
+                        error.loc.column + 1;
+
+                }
+
+
+                markers.push({
+
+                    severity:
+                        monaco.MarkerSeverity.Error,
+
+                    message:
+                        error.message,
+
+                    startLineNumber:
+                        line,
+
+                    startColumn:
+                        column,
+
+                    endLineNumber:
+                        line,
+
+                    endColumn:
+                        column + 5
+
+                });
+
+
+                monaco.editor.setModelMarkers(
+                    model,
+                    "babel",
+                    markers
+                );
+
+
+                document.getElementById(
+                    "errorCount"
+                ).textContent =
+                    "Errors: 1";
+
+
+                document.getElementById(
+                    "panelContent"
+                ).innerHTML =
+
+                    "<div class='error'>" +
+                    "❌ " +
+                    error.message +
+                    "</div>";
+
+            }
+
+        }
+
+
+
+        /* ======================================
+           RUN JAVASCRIPT
+        ======================================= */
+
+        function runCode() {
+
+
+            if (!editor) {
+                return;
+            }
+
+
+            const code =
+                editor.getValue();
+
+
+            const output =
+                document.getElementById(
+                    "panelContent"
+                );
+
+
+            output.innerHTML = "";
+
+
+            /*
+                Capture console.log
+            */
+
+            const oldLog =
+                console.log;
+
+
+            console.log =
+                function (...args) {
+
+
+                    const text =
+                        args
+                            .map(
+                                value =>
+                                String(value)
+                            )
+                            .join(" ");
+
+
+                    output.innerHTML +=
+                        "<div>" +
+                        escapeHtml(text) +
+                        "</div>";
+
+                };
+
+
+            try {
+
+
+                /*
+                    Execute JavaScript
+                */
+
+                new Function(code)();
+
+
+                output.innerHTML +=
+                    "<br>" +
+                    "<div class='success'>" +
+                    "✔ Execution completed" +
+                    "</div>";
+
+
+            }
+
+
+            catch (error) {
+
+
+                output.innerHTML +=
+                    "<div class='error'>" +
+                    "❌ " +
+                    escapeHtml(
+                        error.message
+                    ) +
+                    "</div>";
+
+            }
+
+
+            finally {
+
+                console.log =
+                    oldLog;
+
+            }
+
+        }
+
+
+
+        /* ======================================
+           AST INSPECTOR
+        ======================================= */
+
+        function showAST() {
+
+
+            if (!window.currentAST) {
+
+                document.getElementById(
+                    "astContent"
+                ).textContent =
+                    "No valid AST available.";
+
+                document.getElementById(
+                    "astDrawer"
+                ).classList.add("open");
+
+                return;
+
+            }
+
+
+            document.getElementById(
+                "astContent"
+            ).textContent =
+                JSON.stringify(
+                    window.currentAST,
+                    null,
+                    2
+                );
+
+
+            document.getElementById(
+                "astDrawer"
+            ).classList.add("open");
+
+        }
+
+
+
+        function closeAST() {
+
+            document.getElementById(
+                "astDrawer"
+            ).classList.remove("open");
+
+        }
+
+
+
+        /* ======================================
+           CODE STATISTICS
+        ======================================= */
+
+        function updateStatistics() {
+
+
+            if (!editor) {
+                return;
+            }
+
+
+            const code =
+                editor.getValue();
+
+
+            const lines =
+                code.split("\n").length;
+
+
+            document.getElementById(
+                "lineCount"
+            ).textContent =
+                "Lines: " + lines;
+
+        }
+
+
+
+        /* ======================================
+           DOWNLOAD FILE
+        ======================================= */
+
+        function downloadFile() {
+
+
+            const code =
+                editor.getValue();
+
+
+            const blob =
+                new Blob(
+                    [code],
+                    {
+                        type:
+                            "text/javascript"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(blob);
+
+
+            const link =
+                document.createElement("a");
+
+
+            link.href = url;
+
+
+            link.download =
+                "app.js";
+
+
+            link.click();
+
+
+            URL.revokeObjectURL(url);
+
+        }
+
+
+
+        /* ======================================
+           CLEAR EDITOR
+        ======================================= */
+
+        function clearEditor() {
+
+
+            editor.setValue("");
+
+        }
+
+
+
+        /* ======================================
+           TERMINAL
+        ======================================= */
+
+        function showConsole() {
+
+
+            document.getElementById(
+                "panelContent"
+            ).innerHTML =
+
+                "<div class='info'>" +
+                "Terminal ready..." +
+                "</div>";
+
+        }
+
+
+
+        /* ======================================
+           OUTPUT
+        ======================================= */
+
+        function showOutput() {
+
+
+            document.getElementById(
+                "panelContent"
+            ).innerHTML =
+
+                "<div class='info'>" +
+                "Click Run to see JavaScript output." +
+                "</div>";
+
+        }
+
+
+
+        /* ======================================
+           PROBLEMS
+        ======================================= */
+
+        function showProblems() {
+
+
+            validateCode();
+
+        }
+
+
+
+        /* ======================================
+           ESCAPE HTML
+        ======================================= */
+
+        function escapeHtml(value) {
+
+
+            return value
+
+                .replaceAll("&", "&amp;")
+
+                .replaceAll("<", "&lt;")
+
+                .replaceAll(">", "&gt;")
+
+                .replaceAll('"', "&quot;")
+
+                .replaceAll("'", "&#039;");
+
+        }
+
+
+    </script>
+
+</body>
+
+</html>

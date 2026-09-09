@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monaco Editor v9</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #toolbar {
+            padding: 10px;
+            background: #222;
+            color: white;
+        }
+
+        #editor {
+            width: 100%;
+            height: 50vh;
+        }
+
+        #preview {
+            width: 100%;
+            height: 50vh;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Upload button -->
+    <div id="toolbar">
+        <input type="file" id="fileInput" accept=".html,.js,.css">
+    </div>
+
+    <!-- Monaco Editor -->
+    <div id="editor"></div>
+
+    <!-- Rendered output -->
+    <iframe id="preview"></iframe>
+
+
+    <!-- Monaco Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.js"></script>
+
+    <script>
+
+        // Monaco Editor CDN path
+        require.config({
+            paths: {
+                vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs"
+            }
+        });
+
+
+        // Create Monaco Editor
+        require(["vs/editor/editor.main"], function () {
+
+            const editor = monaco.editor.create(
+                document.getElementById("editor"),
+                {
+                    value: "<h1>Hello World</h1>",
+                    language: "html",
+                    theme: "vs-dark",
+                    automaticLayout: true
+                }
+            );
+
+
+            // Upload file
+            const fileInput = document.getElementById("fileInput");
+
+            fileInput.addEventListener("change", function (event) {
+
+                const file = event.target.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                // Read uploaded file
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+
+                    const content = event.target.result;
+
+                    // Put file content into Monaco
+                    editor.setValue(content);
+
+                    // Render file
+                    renderFile(content);
+
+                };
+
+                reader.readAsText(file);
+
+            });
+
+
+            // Render code
+            function renderFile(content) {
+
+                const preview = document.getElementById("preview");
+
+                preview.srcdoc = content;
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
